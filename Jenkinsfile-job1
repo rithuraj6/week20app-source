@@ -1,26 +1,13 @@
+
+
 pipeline {
     agent any
 
+    tools {
+        maven 'Maven'
+    }
+
     stages {
-
-        stage('Checkout Verification') {
-            steps {
-                sh 'pwd'
-                sh 'ls -la'
-            }
-        }
-
-        stage('Java Version') {
-            steps {
-                sh 'java -version'
-            }
-        }
-
-        stage('Maven Version') {
-            steps {
-                sh 'mvn -version'
-            }
-        }
 
         stage('Build') {
             steps {
@@ -31,6 +18,22 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 sh 'mvn test'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'sonar-scanner'
+
+                    withSonarQubeEnv('sonar-server') {
+                        sh """
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=week20app \
+                        -Dsonar.projectName=week20app
+                        """
+                    }
+                }
             }
         }
     }
