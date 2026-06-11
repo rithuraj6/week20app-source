@@ -86,6 +86,25 @@ pipeline {
 
 
     }
+    stage('Docker Push') {
+        steps {
+            withCredentials([
+                usernamePassword(
+                    credentialsId: 'rithuraj6-dockerhub',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )
+            ]) {
+                sh '''
+                echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+
+                docker tag week20app:latest rithuraj6/week20app:${BUILD_NUMBER}
+
+                docker push rithuraj6/week20app:${BUILD_NUMBER}
+                '''
+            }
+        }
+    }
 
 
 
