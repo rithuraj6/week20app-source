@@ -56,6 +56,30 @@ pipeline {
             }
         }
 
+        stage('Docker Build') {
+            steps {
+                sh '''
+                docker build \
+                -t week20app:latest \
+                .
+                '''
+            }
+        }
+
+        stage('Trivy Scan') {
+            steps {
+                sh '''
+                mkdir -p trivy-reports
+
+                trivy image \
+                --format template \
+                --template "@contrib/html.tpl" \
+                -o trivy-reports/trivy-report.html \
+                week20app:latest
+                '''
+            }
+        }
+
         
 
 
