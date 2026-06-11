@@ -79,6 +79,61 @@ pipeline {
             }
         }
 
+
+        stage('Docker Push') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'rithuraj6-dockerhub',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+
+                    docker tag week20app:latest rithuraj6/week20app:${BUILD_NUMBER}
+
+                    docker push rithuraj6/week20app:${BUILD_NUMBER}
+                    '''
+                }
+            }
+        }
+
+        stage('Update Helm Repo') {
+            steps {
+
+                sshagent(credentials: ['github-ssh']) {
+
+                    sh '''
+                    rm -rf helm-repo
+
+                    git clone git@github.com:rithuraj6/week20app-helmchart.git helm-repo
+
+                    cd helm-repo/week20app
+
+                    sed -i 's/tag: ".*"/tag: "'"${BUILD_NUMBER}"'"/' values-dev.yaml
+
+                    git config user.email "jenkins@local"
+                    git config user.name "Jenkins"
+
+                    git add values-dev.yaml
+
+                    git commit -m "Update dev image to ${BUILD_NUMBER}" || true
+
+                    git push origin main
+                    '''
+                }
+            }
+        }
+
+
+
+
+
+
+
+
         
 
 
@@ -86,29 +141,7 @@ pipeline {
 
 
     }
-    stage('Docker Push') {
-        steps {
-            withCredentials([
-                usernamePassword(
-                    credentialsId: 'rithuraj6-dockerhub',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )
-            ]) {
-                sh '''
-                echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-
-                docker tag week20app:latest rithuraj6/week20app:${BUILD_NUMBER}
-
-                docker push rithuraj6/week20app:${BUILD_NUMBER}
-                '''
-            }
-        }
-    }
-
-
-
-
+    
 
 
 
