@@ -72,9 +72,8 @@ pipeline {
                 mkdir -p trivy-reports
 
                 trivy image \
-                --format template \
-                --template "@contrib/html.tpl" \
-                -o trivy-reports/trivy-report.html \
+                -f table \
+                -o trivy-reports/trivy-report.txt \
                 week20app:latest
                 '''
             }
@@ -99,7 +98,8 @@ pipeline {
 
     post {
             always {
-                archiveArtifacts artifacts: 'reports/*', allowEmptyArchive: true
+                archiveArtifacts artifacts: 'reports/*,trivy-reports/*', allowEmptyArchive: true
             }
         }
+
 }
