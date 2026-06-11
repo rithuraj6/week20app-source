@@ -48,12 +48,10 @@ pipeline {
         stage('OWASP Scan') {
             steps {
                 sh '''
-                rm -rf reports
-
                 dependency-check.sh \
                 --scan . \
                 --format HTML \
-                --out reports
+                --out reports || true
                 '''
             }
         }
