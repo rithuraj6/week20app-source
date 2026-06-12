@@ -8,11 +8,11 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "Week20App v1.0.0";
+        return "Week20App v1.0.0.0.1";
     }
 
     @GetMapping("/version")
     public String version() {
-        return "Application Version: 1.0.0";
+        return "Application Version: 1.0.0.0.1";
     }
 }
